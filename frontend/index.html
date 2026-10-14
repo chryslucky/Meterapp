@@ -11,7 +11,24 @@
     <title>MeterMind — Smart Utility Tracker</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><main style="max-width:560px;margin:12vh auto;padding:24px;font:16px system-ui;color:#263b2d"><h1 style="margin-bottom:8px">MeterMind</h1><p id="startup-status">Starting the app…</p></main></div>
+    <script>
+      (function () {
+        function showError(message) {
+          var root = document.getElementById('root');
+          if (!root) return;
+          root.innerHTML = '<main style="max-width:620px;margin:8vh auto;padding:24px;font:16px system-ui;color:#263b2d;background:#fff;border:1px solid #e7ebe3;border-radius:16px"><h1 style="margin-top:0">MeterMind could not start</h1><p>The page loaded, but the app encountered a JavaScript error.</p><pre style="white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f8f5;padding:14px;border-radius:8px;font-size:12px"></pre><p style="font-size:13px;color:#687267">Please send this error text to support so the issue can be fixed.</p></main>';
+          root.querySelector('pre').textContent = String(message || 'Unknown startup error');
+        }
+        window.addEventListener('error', function (event) {
+          showError((event.message || 'Script failed to load') + (event.filename ? ' — ' + event.filename + ':' + event.lineno : ''));
+        });
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event.reason;
+          showError(reason && (reason.stack || reason.message) || reason || 'Unhandled promise rejection');
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
