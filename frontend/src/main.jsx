@@ -52,7 +52,7 @@ function App() {
   const electricCost = (totals.Electricity || 0) * Number(tariffs.electricity || 0) + Number(tariffs.electricityFixed || 0);
   const waterCost = (totals.Water || 0) * Number(tariffs.water || 0) + Number(tariffs.waterFixed || 0);
   const chartData = useMemo(() => range === '7 days' ? sample : Array.from({ length: range === '30 days' ? 30 : 90 }, (_, i) => ({ day: String(i + 1), electricity: +(sample[i % 7].electricity * (0.82 + (i % 5) * .08)).toFixed(2), water: +(sample[i % 7].water * (0.85 + (i % 4) * .09)).toFixed(2) })), [range]);
-  const nav = [{ name: 'Overview', icon: 'layout-dashboard' }, { name: 'Meter readings', icon: 'gauge' }, { name: 'Bill estimates', icon: 'wallet' }, { name: 'Insights', icon: 'chart-no-axes-combined' }, { name: 'Tariff settings', icon: 'sliders-horizontal' }];
+  const nav = [{ name: 'Overview', icon: 'panels-top-left' }, { name: 'Meter readings', icon: 'gauge' }, { name: 'Bill estimates', icon: 'receipt-text' }, { name: 'Insights', icon: 'chart-spline' }, { name: 'Tariff settings', icon: 'sliders-horizontal' }];
   const notify = msg => setNotice(msg);
   const startSwipe = e => { const t=e.touches[0]; if(window.innerWidth>850)return; if(mobileOpen || t.clientX<34) touchStart.current={x:t.clientX,y:t.clientY,open:mobileOpen}; };
   const moveSwipe = e => { if(!touchStart.current || window.innerWidth>850)return; const t=e.touches[0], dx=t.clientX-touchStart.current.x, dy=t.clientY-touchStart.current.y; if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>5){ if(e.cancelable)e.preventDefault(); setSwipeOffset(touchStart.current.open?Math.max(-254,Math.min(0,dx)):Math.max(0,Math.min(254,dx))); } };
