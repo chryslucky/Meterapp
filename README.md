@@ -1,19 +1,19 @@
 # MeterMind
 
-MeterMind is a responsive electricity and water utility tracker. The current deployed release is the React/Vite frontend prototype.
+MeterMind is a responsive electricity and water utility tracker. The repository contains a React/Vite frontend prototype and an Express/PostgreSQL API starter.
 
-## Frontend features
+## Frontend
 
 - Responsive dashboard for desktop and mobile
-- Electricity and water meter reading entry
-- Consumption calculations from current minus previous readings
+- Electricity and water meter-reading entry
+- Consumption calculated as current reading minus previous reading
 - Editable flat-rate and fixed-charge estimates
-- Reading history, bill estimate, and insight views
+- Reading history, bill estimates, and insights
 - Google Fonts: Outfit, Sora, and DM Mono
 - Online Lucide icons delivered through Iconify
-- Local browser persistence using `localStorage`
+- Browser-local persistence with `localStorage`
 
-## Run locally
+Run it locally:
 
 ```bash
 cd frontend
@@ -21,18 +21,35 @@ npm install
 npm run dev
 ```
 
-Create a production build:
+Build it:
 
 ```bash
 npm run build
 ```
 
-## Deploy on Vercel
+## Backend
 
-Use `frontend` as the Vercel project root directory. Framework preset: Vite. Build command: `npm run build`. Output directory: `dist`.
+The `backend/` directory contains an Express API, JWT authentication, PostgreSQL schema/migration, meter and reading endpoints, configurable flat tariffs, and estimate endpoints.
 
-## Important limitations
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Edit .env with your PostgreSQL URL and a long random JWT_SECRET
+npm run db:migrate
+npm run dev
+```
 
-This release is a frontend prototype. Meter readings and tariffs are stored in the current browser only. Chart trend data is illustrative, and flat-rate estimates do not include official tiered tariffs, taxes, levies, or provider-specific adjustments. The Express/PostgreSQL backend and authentication are not yet committed or connected in this repository.
+The frontend is currently a prototype and has not yet been wired to the API; its readings and tariffs stay in the current browser. The backend requires a running PostgreSQL database and environment variables.
 
-The Vercel deployment was created directly from a source snapshot. Git-based automatic deployments require granting the connected Vercel account access to this GitHub repository and linking the project.
+## Vercel deployment
+
+Configure Vercel's project root directory as `frontend`, framework as Vite, build command as `npm run build`, and output directory as `dist`. The backend needs a separate Node.js hosting target and PostgreSQL database; it is not part of this static frontend deployment.
+
+## Billing accuracy
+
+Tariff values in the frontend are editable examples, not official utility rates. Flat-rate estimates do not include official tiered tariffs, taxes, levies, or provider-specific adjustments. Configure rates from the user's actual provider and billing category before relying on an estimate.
+
+## Deployment note
+
+The current Vercel production deployment was created from a source snapshot. Automatic deployments from GitHub require the connected Vercel account to be granted access to this repository and the project to be linked to it.
