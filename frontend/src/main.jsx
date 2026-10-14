@@ -33,6 +33,17 @@ function App() {
   useEffect(() => { localStorage.setItem('mm.readings', JSON.stringify(readings)); }, [readings]);
   useEffect(() => { localStorage.setItem('mm.tariffs', JSON.stringify(tariffs)); }, [tariffs]);
   useEffect(() => { if (!notice) return; const id = setTimeout(() => setNotice(''), 3000); return () => clearTimeout(id); }, [notice]);
+  useEffect(() => {
+    const targets = document.querySelectorAll('.page-heading, .stat-card, .content-grid > .panel, .recent-panel, .settings-panel, .table-panel, .bill-grid > *, .insight-grid > *');
+    if (!('IntersectionObserver' in window)) { targets.forEach(el => el.classList.add('is-visible')); return; }
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -5% 0px' });
+    targets.forEach((el, index) => { el.classList.add('reveal-on-scroll'); el.style.setProperty('--reveal-delay', Math.min(index % 4, 3) * 75 + 'ms'); observer.observe(el); });
+    return () => observer.disconnect();
+  }, [page]);
 
   const totals = useMemo(() => readings.reduce((a, r) => { const v = Math.max(0, Number(r.current) - Number(r.previous)); a[r.utility] = (a[r.utility] || 0) + v; return a; }, {}), [readings]);
   const electricCost = (totals.Electricity || 0) * Number(tariffs.electricity || 0) + Number(tariffs.electricityFixed || 0);
