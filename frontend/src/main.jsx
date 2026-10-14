@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import './styles.css';
@@ -23,6 +23,9 @@ const sample = [
 function App() {
   const [page, setPage] = useState('Overview');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const touchStart = useRef(null);
+  const [formStep, setFormStep] = useState(0);
   const [modal, setModal] = useState(false);
   const [utility, setUtility] = useState('Electricity');
   const [range, setRange] = useState('7 days');
@@ -51,6 +54,10 @@ function App() {
   const chartData = useMemo(() => range === '7 days' ? sample : Array.from({ length: range === '30 days' ? 30 : 90 }, (_, i) => ({ day: String(i + 1), electricity: +(sample[i % 7].electricity * (0.82 + (i % 5) * .08)).toFixed(2), water: +(sample[i % 7].water * (0.85 + (i % 4) * .09)).toFixed(2) })), [range]);
   const nav = [{ name: 'Overview', icon: 'layout-dashboard' }, { name: 'Meter readings', icon: 'gauge' }, { name: 'Bill estimates', icon: 'wallet' }, { name: 'Insights', icon: 'chart-no-axes-combined' }, { name: 'Tariff settings', icon: 'sliders-horizontal' }];
   const notify = msg => setNotice(msg);
+  const startSwipe = e => { const t=e.touches[0]; if(window.innerWidth>850)return; if(mobileOpen || t.clientX<34) touchStart.current={x:t.clientX,y:t.clientY,open:mobileOpen}; };
+  const moveSwipe = e => { if(!touchStart.current || window.innerWidth>850)return; const t=e.touches[0], dx=t.clientX-touchStart.current.x, dy=t.clientY-touchStart.current.y; if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>5){ if(e.cancelable)e.preventDefault(); setSwipeOffset(touchStart.current.open?Math.max(-254,Math.min(0,dx)):Math.max(0,Math.min(254,dx))); } };
+  const endSwipe = () => { if(!touchStart.current)return; setMobileOpen(touchStart.current.open?swipeOffset>-105:swipeOffset>90); setSwipeOffset(0); touchStart.current=null; };
+  const openReadingModal = () => { setFormStep(0); setModal(true); };
   const addReading = e => {
     e.preventDefault();
     const prev = Number(form.previous), curr = Number(form.current);
@@ -60,8 +67,8 @@ function App() {
   };
   const setRate = (key, value) => setTariffs(t => ({ ...t, [key]: value }));
 
-  return <div className="app-shell">
-    <aside className={'sidebar ' + (mobileOpen ? 'sidebar-open' : '')}>
+  return <div className="app-shell" onTouchStart={startSwipe} onTouchMove={moveSwipe} onTouchEnd={endSwipe} onTouchCancel={endSwipe}>
+    <aside className={'sidebar ' + (mobileOpen ? 'sidebar-open' : '') + (swipeOffset ? ' sidebar-dragging' : '')} style={{ '--swipe-offset': swipeOffset + 'px' }}>
       <div className="brand"><div className="brand-symbol"><Icon name="gauge" size={23}/></div><div><strong>MeterMind<span>.</span></strong><small>SMART UTILITY TRACKER</small></div><button className="icon-button close-mobile" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><Icon name="x"/></button></div>
       <div className="workspace"><div className="workspace-avatar"><Icon name="house" size={19}/></div><div><b>Home workspace</b><small>Personal account</small></div><Icon name="chevrons-up-down" size={15}/></div>
       <p className="nav-caption">WORKSPACE</p>
